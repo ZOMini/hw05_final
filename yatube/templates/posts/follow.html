@@ -1,0 +1,12 @@
+<!-- templates/posts/follow.html -->
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% block title %}Follow страница{% endblock %}
+{% block content %}
+  {% include 'posts/includes/switcher.html' %}
+      {% for post in page_obj %}
+        {% include 'posts/includes/post_list.html' %}
+        {% if not forloop.last %}<hr>{% endif %}
+      {% endfor %}
+{% include 'posts/includes/paginator.html' %}
+{% endblock %}

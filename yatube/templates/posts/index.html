@@ -1,0 +1,16 @@
+<!-- templates/posts/index.html -->
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% block title %}Основная страница{% endblock %}
+{% block content %}
+  <p> Последние обновления на сайте: </p>
+  {% include 'posts/includes/switcher.html' %}
+  {% load cache %}
+  {% cache 20 index_page %}
+      {% for post in page_obj %}
+        {% include 'posts/includes/post_list.html' %}
+        {% if not forloop.last %}<hr>{% endif %}
+      {% endfor %}
+  {% endcache index page %}
+{% include 'posts/includes/paginator.html' %}
+{% endblock %}

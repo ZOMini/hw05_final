@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% block title %} Страница группы {{ page_obj.0.group.title }}{% endblock %}
+{% block header %} {{ page_obj.0.group.title }} {% endblock %}
+{% block content %}
+  <h1>{{ page_obj.0.author.get_full_name }} 
+  – зеркало русской революции. </h1>
+  <p> 
+  {{page_obj.0.group.description|linebreaksbr }}
+  </p>
+  {% for post in page_obj %}
+    {% include 'posts/includes/post_list.html' %}
+  {% if not forloop.last %}<hr>{% endif %}
+{% endfor %}
+{% include 'posts/includes/paginator.html' %}
+{% endblock %}
+
