@@ -139,7 +139,7 @@ HTML_S = {
     'h_login': 'users/login.html',
     'h_author': 'about/author.html',
     'h_tech': 'about/tech.html',
-
+    'h_follow': 'posts/follow.html',
 }
 
 INTERNAL_IPS = [

@@ -22,6 +22,7 @@ URL_CREATE = '/create/'
 URL_EDIT = f'/posts/{POST_NUM}/edit/'
 URL_SIGNUP = '/auth/signup/'
 URL_LOGIN = '/auth/login/'
+URL_FOLLOW = '/follow/'
 
 FOR_GUEST_TEST = {
     URL_INDEX: HTTPStatus.OK,
@@ -32,6 +33,7 @@ FOR_GUEST_TEST = {
     URL_EDIT: HTTPStatus.FOUND,
     URL_SIGNUP: HTTPStatus.OK,
     URL_LOGIN: HTTPStatus.OK,
+    URL_FOLLOW: HTTPStatus.FOUND,
 }
 
 URL_ADRESS = {
@@ -42,7 +44,8 @@ URL_ADRESS = {
     URL_CREATE: HTML_S['h_edit_create'],
     URL_EDIT: HTML_S['h_edit_create'],
     URL_SIGNUP: HTML_S['h_signup'],
-    URL_LOGIN: HTML_S['h_login']
+    URL_LOGIN: HTML_S['h_login'],
+    URL_FOLLOW: HTML_S['h_follow'],
 }
 
 

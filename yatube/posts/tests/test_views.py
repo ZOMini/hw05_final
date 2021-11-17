@@ -28,6 +28,7 @@ POST_DETAIL_NAME = 'posts:post_detail'
 POST_EDIT_NAME = 'posts:post_edit'
 CREATE_NAME = 'posts:post_create'
 SIGNUP_NAME = 'users:signup'
+FOLLOW_NAME = 'posts:follow_index'
 
 INDEX = reverse(INDEX_NAME)
 GROUP_1 = reverse(GROUP_LIST_NAME, kwargs={'slug': SLUG_1})
@@ -38,6 +39,7 @@ POST_DETAIL = reverse(POST_DETAIL_NAME, kwargs={'post_id': POST_NUM})
 POST_EDIT = reverse(POST_EDIT_NAME, kwargs={'post_id': POST_NUM})
 CREATE = reverse(CREATE_NAME)
 SIGNUP = reverse(SIGNUP_NAME)
+FOLLOW = reverse(FOLLOW_NAME)
 
 TEMP_PAGE_NAMES = {
     INDEX: HTML_S['h_index'],
@@ -106,7 +108,7 @@ class AllViewsTests(TestCase):
         #          group=cls.group) for i in range(13)
         # )
         # Post.objects.bulk_create(posts, 13)
-
+        
     def setUp(self):
         self.guest_client = Client()
         self.a_c_author = Client()
@@ -266,8 +268,7 @@ class AllViewsTests(TestCase):
         user2 = User.objects.create_user(username='User2')
         post = Post.objects.create(text='Проверка подписки', author=user2)
         Follow.objects.create(user=self.author_p, author=user2)
-        response = self.a_c_author.get(reverse(
-            'posts:follow_index'))
+        response = self.a_c_author.get(FOLLOW)
         post_text1 = response.context['page_obj'][0].text
         self.assertEqual(post.text, post_text1)
 
@@ -277,8 +278,7 @@ class AllViewsTests(TestCase):
         test_client = Client()
         test_client.force_login(user2)
         Follow.objects.create(user=user2, author=self.author_p)
-        response = test_client.get(reverse(
-            'posts:follow_index'))
+        response = test_client.get(FOLLOW)
         post_text1 = response.context['page_obj'][0].text
         self.assertNotEqual(post.text, post_text1)
 
