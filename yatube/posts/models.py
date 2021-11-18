@@ -93,3 +93,6 @@ class Follow(models.Model):
     class Meta:
         verbose_name = 'follow'
         verbose_name_plural = 'follows'
+    
+    def __str__(self):
+        return self.user

@@ -1,6 +1,5 @@
-from django.test import TestCase
-
-from ..models import Group, Post, User
+from django.test import Client, TestCase
+from posts.models import Comment, Follow, Group, Post, User
 
 SLUG = 'test-slug'
 AUTHOR = 'auth'
@@ -24,6 +23,9 @@ class PostModelTest(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.user = User.objects.create_user(username=AUTHOR)
+        cls.user_2 = User.objects.create_user(
+            username='User2'
+        )
         cls.group = Group.objects.create(
             title=TITLE,
             slug=SLUG,
@@ -33,6 +35,25 @@ class PostModelTest(TestCase):
             author=cls.user,
             text=TEXT1,
         )
+        cls.post_2 = Post.objects.create(
+            author=cls.user,
+            text=TEXT1,
+        )
+        cls.comment = Comment.objects.create(
+            post=cls.post,
+            author=cls.user_2,
+            text='text_com'
+        )
+        cls.follow = Follow.objects.create(
+            user=cls.user_2,
+            author=cls.user
+        )
+
+
+    def setUp(self):
+        self.a_c_author = Client()
+        self.a_c_author.force_login(self.user)
+
 
     def test_models_have_correct_object_names(self):
         """Проверяем, что у моделей корректно работает __str__."""
@@ -44,6 +65,11 @@ class PostModelTest(TestCase):
         str_post = self.post
         text_post = self.post.text[:15]
         self.assertEqual(text_post, str(str_post))
+        # Проверяем Comment
+        str_com = self.post
+        text_com = self.post.text[:15]
+        self.assertEqual(text_com, str(str_com))
+
 
     def test_verbose_name(self):
         """Test verbose_name."""
@@ -60,3 +86,23 @@ class PostModelTest(TestCase):
             with self.subTest(field=field):
                 self.assertEqual(
                     self.post._meta.get_field(field).help_text, value)
+
+    def test_comment(self):
+        """Test comment create."""
+        self.assertTrue(Comment.objects.filter(
+            text='text_com',
+            author=self.user_2).exists())
+    
+    def test_follow(self):
+        """Test follow."""
+        self.assertTrue(Follow.objects.filter(
+            user=self.user_2,
+            author=self.user).exists())
+
+    def test_unfollow(self):
+        self.assertEqual(self.post_2.author.follower.count(),
+            0)
+
+    def test_uncomment(self):
+        self.assertEqual(self.post_2.comments.count(),
+            0)

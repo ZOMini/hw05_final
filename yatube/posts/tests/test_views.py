@@ -108,7 +108,12 @@ class AllViewsTests(TestCase):
         #          group=cls.group) for i in range(13)
         # )
         # Post.objects.bulk_create(posts, 13)
-        
+    
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
+        super().tearDownClass()    
+    
     def setUp(self):
         self.guest_client = Client()
         self.a_c_author = Client()
@@ -282,7 +287,3 @@ class AllViewsTests(TestCase):
         post_text1 = response.context['page_obj'][0].text
         self.assertNotEqual(post.text, post_text1)
 
-    @classmethod
-    def tearDownClass(cls):
-        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
-        super().tearDownClass()

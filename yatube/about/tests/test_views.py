@@ -3,6 +3,9 @@ from django.urls import reverse
 from posts.models import User
 from yatube.settings import HTML_S
 
+# Странно но isort так и сделал импорты.
+
+
 AUTHOR_NAME = 'about:author'
 TECH_NAME = 'about:tech'
 AUTHOR = 'author_p'

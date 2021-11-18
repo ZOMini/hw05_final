@@ -1,8 +1,7 @@
 from django.contrib import admin
-
 from yatube.settings import YATUBE_CONST
 
-from .models import Group, Post
+from .models import Comment, Follow, Group, Post
 
 
 @admin.register(Post)
@@ -14,12 +13,10 @@ class PostAdmin(admin.ModelAdmin):
         'author',
         'group',
     )
-    # list_editable = ('group',)
     search_fields = ('text',)
     list_filter = ('pub_date',)
     empty_value_display = YATUBE_CONST['empty']
-    list_select_related = ('author', 'group')
-    # list_per_page = 30
+    list_select_related = ('author', 'group',)
     actions_on_bottom = True
     actions = ['group_1', 'group_2', 'group_3']
 
@@ -40,6 +37,20 @@ class PostAdmin(admin.ModelAdmin):
 class GroupAdmin(admin.ModelAdmin):
     list_display = ('slug', 'title', 'description')
     search_fields = ('slug', 'title')
+    empty_value_display = YATUBE_CONST['empty']
+
+
+@admin.register(Follow)
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ('user', 'author')
+    search_fields = ('user',)
+    empty_value_display = YATUBE_CONST['empty']
+
+
+@admin.register(Comment)
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ('created', 'post', 'author', 'text')
+    search_fields = ('author',)
     empty_value_display = YATUBE_CONST['empty']
 
 

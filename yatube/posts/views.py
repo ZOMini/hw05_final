@@ -28,15 +28,13 @@ def index(request):
 def group_posts(request, slug):
     template = HTML_S['h_group']
     text = 'Здесь будет информация о группах проекта Yatube'
-    group = Group.objects.get(slug=slug)
-    posts = group.group_posts.all().select_related('author')
-    paginator = Paginator(posts, YATUBE_CONST['count_pag'])
+    paginator = Paginator(
+        Group.objects.get(slug=slug).group_posts.all().select_related('author'),
+        YATUBE_CONST['count_pag'])
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {
         'text': text,
-        # 'group': group,
-        # 'posts': posts,
         'page_obj': page_obj,
     }
     return render(request, template, context)
@@ -67,15 +65,11 @@ def post_detail(request, post_id):
     template = HTML_S['h_post']
     form = CommentForm(request.POST or None)
     post = Post.objects.select_related('group', 'author').get(id=post_id)
-    username = post.author.username
-    author = get_object_or_404(User, username=username)
-    count = author.posts.all().count()
     comments = post.comments.all()
     context = {
         'form': form,
         'comments': comments,
         'post': post,
-        'count': count,
     }
     return render(request, template, context)
 
