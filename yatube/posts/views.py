@@ -29,8 +29,8 @@ def group_posts(request, slug):
     template = HTML_S['h_group']
     text = 'Здесь будет информация о группах проекта Yatube'
     paginator = Paginator(
-        Group.objects.get(slug=slug).group_posts.all().select_related('author'),
-        YATUBE_CONST['count_pag'])
+        Group.objects.get(slug=slug).group_posts.all()
+        .select_related('author'), YATUBE_CONST['count_pag'])
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {

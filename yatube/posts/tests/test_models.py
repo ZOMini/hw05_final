@@ -49,11 +49,9 @@ class PostModelTest(TestCase):
             author=cls.user
         )
 
-
     def setUp(self):
         self.a_c_author = Client()
         self.a_c_author.force_login(self.user)
-
 
     def test_models_have_correct_object_names(self):
         """Проверяем, что у моделей корректно работает __str__."""
@@ -69,7 +67,6 @@ class PostModelTest(TestCase):
         str_com = self.post
         text_com = self.post.text[:15]
         self.assertEqual(text_com, str(str_com))
-
 
     def test_verbose_name(self):
         """Test verbose_name."""
@@ -92,7 +89,7 @@ class PostModelTest(TestCase):
         self.assertTrue(Comment.objects.filter(
             text='text_com',
             author=self.user_2).exists())
-    
+
     def test_follow(self):
         """Test follow."""
         self.assertTrue(Follow.objects.filter(
@@ -100,9 +97,7 @@ class PostModelTest(TestCase):
             author=self.user).exists())
 
     def test_unfollow(self):
-        self.assertEqual(self.post_2.author.follower.count(),
-            0)
+        self.assertEqual(self.post_2.author.follower.count(), 0)
 
     def test_uncomment(self):
-        self.assertEqual(self.post_2.comments.count(),
-            0)
+        self.assertEqual(self.post_2.comments.count(), 0)
