@@ -3,7 +3,8 @@ from django.urls import reverse
 from posts.models import User
 from yatube.settings import HTML_S
 
-# Странно но isort так и сделал импорты.
+# Странно, но isort так и сделал импорты.
+# Проверил, все ок - isort test_views.py --check-only.
 
 
 AUTHOR_NAME = 'about:author'
