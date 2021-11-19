@@ -1,7 +1,8 @@
-from core.time_func import timeit
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
+
+from core.time_func import timeit
 from yatube.settings import HTML_S, YATUBE_CONST
 
 from .forms import CommentForm, PostForm

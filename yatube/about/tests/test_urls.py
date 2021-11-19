@@ -2,6 +2,7 @@
 from http import HTTPStatus
 
 from django.test import Client, TestCase
+
 from posts.models import User
 from yatube.settings import HTML_S
 

@@ -1,10 +1,12 @@
 from django.test import Client, TestCase
 from django.urls import reverse
+
 from posts.models import User
 from yatube.settings import HTML_S
 
 # Странно, но isort так и сделал импорты.
 # Проверил, все ок - isort test_views.py --check-only.
+# Разобрался, нужно было isort.cfg добавить/настроить.
 
 
 AUTHOR_NAME = 'about:author'

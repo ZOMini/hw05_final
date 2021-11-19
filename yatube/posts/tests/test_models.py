@@ -1,4 +1,5 @@
 from django.test import Client, TestCase
+
 from posts.models import Comment, Follow, Group, Post, User
 
 SLUG = 'test-slug'

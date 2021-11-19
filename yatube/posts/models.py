@@ -95,4 +95,4 @@ class Follow(models.Model):
         verbose_name_plural = 'follows'
 
     def __str__(self):
-        return self.user
+        return (self.user, self.author)
