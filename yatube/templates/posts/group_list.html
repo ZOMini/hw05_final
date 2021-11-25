@@ -2,12 +2,12 @@
 {% extends 'base.html' %}
 {% load thumbnail %}
 {% block title %} Страница группы {{ page_obj.0.group.title }}{% endblock %}
-{% block header %} {{ page_obj.0.group.title }} {% endblock %}
+{% block header %} <p> {{ page_obj.0.group.description }} </p> {% endblock %}
 {% block content %}
   <h1>{{ page_obj.0.author.get_full_name }} 
   – зеркало русской революции. </h1>
   <p> 
-  {{page_obj.0.group.description|linebreaksbr }}
+  {{page_obj.0.group.description }}
   </p>
   {% for post in page_obj %}
     {% include 'posts/includes/post_list.html' %}

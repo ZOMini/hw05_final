@@ -79,7 +79,7 @@ def post_detail(request, post_id):
 @login_required
 def post_create(request):
     template = HTML_S['h_edit_create']
-    form = PostForm(request.POST)
+    form = PostForm(request.POST, files=request.FILES or None)
     if form.is_valid():
         post = form.save(commit=False)
         post.author = request.user
@@ -107,7 +107,7 @@ def post_edit(request, post_id):
 
 @login_required
 def add_comment(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
+    post = get_object_or_404(Post, pk=post_id)
     form = CommentForm(request.POST or None)
     if form.is_valid():
         comment = form.save(commit=False)

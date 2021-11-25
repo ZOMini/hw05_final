@@ -6,15 +6,16 @@ from django import forms
 from django.conf import settings
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from posts.models import Comment, Follow, Group, Post, User
 from yatube.settings import HTML_S, YATUBE_CONST
 
 PAGE = YATUBE_CONST['count_pag']
-SLUG_1 = 'test-slug'
-SLUG_2 = 'group-2'
+TEST_NUM = 13
+SLUG_1 = '1'
+SLUG_2 = '2'
 USER = 'user_a'
 AUTHOR = 'author_p'
 POST_NUM = '1'
@@ -69,9 +70,10 @@ UPLOADED_GIF = SimpleUploadedFile(
     content=SMALL_GIF,
     content_type='image/gif'
 )
-settings.MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
+TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
 
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class AllViewsTests(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -87,33 +89,25 @@ class AllViewsTests(TestCase):
             text=TEXT1,
             group=cls.group,
             image=UPLOADED_GIF)
-        time.sleep(0.01)  # Иначе сортирует не верно.
+        time.sleep(0.01)
         Post.objects.create(author=cls.author_p,
                             text='text_2',
                             image=UPLOADED_GIF
                             )
-        for i in range(13):
-            time.sleep(0.01)  # Без этого тесты ломаются.
-            Post.objects.create(author=cls.user_a,
-                                text=f'text{i}',
-                                group=cls.group,
-                                image=UPLOADED_GIF
-                                )
-        # Если сделать через bulk_create, как ниже, или убрать sleep, как выше,
-        # то посты создаются в случайном порядке, видимо pub_date
-        # (= случайные ID) одинаковый, ну соответственно все тесты ниже
-        # ломаются, но это не точно :), готов осознать свою ошибку:).
-
-        # posts = (
-        #     Post(text=f'text{i}', author=cls.user_a,
-        #          group=cls.group) for i in range(13)
-        # )
-        # Post.objects.bulk_create(posts, 13)
+        time.sleep(0.01)
+        for i in range(TEST_NUM):
+            Post.objects.create(text=f'text{i}', author=cls.user_a,
+                                group=cls.group, image=UPLOADED_GIF)
+            time.sleep(0.01)
+        # posts = (Post(text=f'text{i}', author=cls.user_a,
+        #          group=cls.group, image=UPLOADED_GIF)
+        #          for i in range(TEST_NUM))
+        # Post.objects.bulk_create(posts, TEST_NUM)
 
     @classmethod
     def tearDownClass(cls):
-        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
         super().tearDownClass()
+        shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
 
     def setUp(self):
         self.guest_client = Client()

@@ -75,7 +75,7 @@ class AllURLTests(TestCase):
         self.authorized_client.force_login(self.user_a)
         self.authorized_client_author.force_login(self.author_p)
 
-    def test_url_quest(self):
+    def test_url_guest(self):
         """Страницы доступные гостю."""
         for page_url, resp_code in FOR_GUEST_TEST.items():
             with self.subTest(page_url=page_url):
