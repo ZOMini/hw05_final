@@ -1,3 +1,6 @@
+import time
+
+from django import forms
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -15,21 +18,21 @@ class TaskViewsTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user_a = User.objects.create_user(username='user_a')
-        cls.author_p = User.objects.create_user(username='author_p')
+        cls.user_a = User.objects.create_user(username='test_username_a')
+        cls.author_p = User.objects.create_user(username='test_author_p')
         cls.group = Group.objects.create(
             slug=SLUG_1,
             title='test-title',
-            description='test-desc',
+            description='test-description',
         )
 
     def setUp(self):
         self.author = User.objects.create(
-            username='test_name',
+            username='test_username',
         )
         self.post = Post.objects.create(
             author=self.author,
-            text='Текст, написанный для проверки',
+            text='тестовый текс,ЭЪ/!"№;%:?*()_',
             group=self.group,
         )
         self.authorized_client = Client()
@@ -59,12 +62,12 @@ class TaskPaginatorsTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user_a = User.objects.create_user(username='user_a')
-        cls.author_p = User.objects.create_user(username='author_p')
+        cls.user_a = User.objects.create_user(username='test_username_a')
+        cls.author_p = User.objects.create_user(username='test_author_p')
         cls.group = Group.objects.create(
             slug=SLUG_1,
             title='test-title',
-            description='test-desc',
+            description='test-description',
         )
         cls.posts = (Post(text=f'text{i}', author=cls.user_a,
                      group=cls.group) for i in range(13))
@@ -85,22 +88,23 @@ class TaskPaginatorsTests(TestCase):
             with self.subTest(page_name=page_name):
                 response = self.guest_client.get(page_name)
                 self.assertEqual(len(response.context['page_obj']), 10)
-                response2 = self.guest_client.get(page_name + '?page=2')
-                self.assertEqual(len(response2.context['page_obj']), 3)
+                response = self.guest_client.get(page_name + '?page=2')
+                self.assertEqual(len(response.context['page_obj']), 3)
 
 
-class AnotherGroupTests(TestCase):
+class AnotherTests(TestCase):
     def setUp(self):
-        self.author_p = User.objects.create_user(username='author_p')
+        self.author_p = User.objects.create_user(username='test_author_p')
         self.group_1 = Group.objects.create(
-            slug='1', title='testtitle', description='testdesc'
+            slug=1, title='testtitle1', description='testdesc1'
         )
         self.group_2 = Group.objects.create(
-            slug='2', title='testtitle2', description='testdesc2'
+            slug=2, title='testtitle2', description='testdesc2'
         )
-        Post.objects.create(
+        self.post2 = Post.objects.create(
             author=self.author_p, text='text_2', group=self.group_2)
-        Post.objects.create(
+        time.sleep(0.01)  # Иначе посты имеют случайный порядок.
+        self.post1 = Post.objects.create(
             author=self.author_p, text='text_1', group=self.group_1)
         self.guest_client = Client()
         self.a_c_author = Client()
@@ -108,16 +112,25 @@ class AnotherGroupTests(TestCase):
 
     def test_post_in_2_group_2(self):
         response = self.a_c_author.get(GROUP_1)
-        self.assertEqual(response.context['page_obj'][0].group.id, 1)
+        self.assertEqual(response.context['page_obj'][0].group.id,
+                         self.group_1.slug)
+        self.assertEqual(response.context['page_obj'][0].text,
+                         self.post1.text)
         response = self.a_c_author.get(GROUP_2)
-        self.assertEqual(response.context['page_obj'][0].group.id, 2)
+        self.assertEqual(response.context['page_obj'][0].group.id,
+                         self.group_2.slug)
+        self.assertEqual(response.context['page_obj'][0].text, self.post2.text)
 
     def test_index_correct_context(self):
         response = self.guest_client.get(reverse('posts:index'))
-        # self.assertEqual(len(response.context["page_obj"]), 2)
-        # self.assertEqual(response.context["page_obj"].end_index(), 2)
-        # self.assertEqual(response.context["posts"].count(), 2)
         self.assertEqual(response.context['page_obj'].paginator.count, 2)
+        self.assertEqual(response.context['page_obj'][0].text,
+                         self.post1.text)
+        self.assertEqual(response.context['page_obj'][0].author,
+                         self.post1.author)
+        self.assertEqual(response.context['page_obj'][0].group,
+                         self.post1.group)
+        self.assertEqual(response.context['page_obj'][1].text, self.post2.text)
 
     def test_group_list_correct_context(self):
         response = self.guest_client.get(
@@ -125,6 +138,7 @@ class AnotherGroupTests(TestCase):
         )
         first_object = response.context['page_obj'][0]
         self.assertEqual(first_object.group, self.group_1)
+        self.assertEqual(response.context['page_obj'][0].text, self.post1.text)
 
     def test_profile_correct_context(self):
         response = self.guest_client.get(
@@ -132,3 +146,44 @@ class AnotherGroupTests(TestCase):
                     kwargs={'username': self.author_p.username})
         )
         self.assertEqual(response.context['page_obj'][0].author, self.author_p)
+        self.assertEqual(response.context['page_obj'][0].text, self.post1.text)
+        self.assertEqual(response.context['page_obj'][1].text, self.post2.text)
+
+    def test_create_post_2(self):
+        posts_count = Post.objects.count()
+        form_data = {
+            'text': 'тест текст',
+            'group': self.group_1.id
+        }
+        response = self.a_c_author.post(
+            reverse('posts:post_create'),
+            data=form_data,
+            follow=True
+        )
+        self.assertRedirects(response, reverse(
+            'posts:profile', kwargs={'username': self.author_p})
+        )
+        self.assertEqual(Post.objects.count(), posts_count + 1)
+        latest_post = Post.objects.first()
+        self.assertEqual(latest_post.text, form_data['text'])
+        self.assertEqual(latest_post.author, self.author_p)
+        self.assertEqual(latest_post.group.id, form_data['group'])
+
+    def test_post_edit_2(self):
+        post_edit = Post.objects.create(
+            author=self.author_p,
+            text='тест текст',
+        )
+        form_data = {
+            'text': 'измененный текст',
+        }
+        response = self.a_c_author.post(
+            reverse('posts:post_edit', kwargs={'post_id': post_edit.id}),
+            data=form_data,
+            follow=True,
+        )
+        post_edit.refresh_from_db()
+        self.assertEqual(post_edit.text, form_data['text'])
+        self.assertEqual(post_edit.author, self.author_p)
+        self.assertIsInstance(response.context.get('form').fields.get('text'),
+                              forms.fields.CharField)

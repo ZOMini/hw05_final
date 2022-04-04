@@ -19,3 +19,5 @@
     * `python manage.py createsuperuser`
   * Запуск приложения:
     * `python manage.py runserver`
+  * Запуск тестов:
+    * `python manage.py test`

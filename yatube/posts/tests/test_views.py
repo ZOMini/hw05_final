@@ -9,6 +9,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
+import pytest
+
 from posts.models import Comment, Follow, Group, Post, User
 from yatube.settings import HTML_S, YATUBE_CONST
 
@@ -280,4 +282,16 @@ class AllViewsTests(TestCase):
         Follow.objects.create(user=user2, author=self.author_p)
         response = test_client.get(FOLLOW)
         post_text1 = response.context['page_obj'][0].text
-        self.assertNotEqual(post.text, post_text1)
+        self.assertEqual(post.text, post_text1)
+
+    def test_qqqq(self):
+        user2 = User.objects.create_user(username='User2')
+        Post.objects.create(text='Проверка подписки', author=user2)
+        test_client = Client()
+        test_client.force_login(user2)
+        followers_count = Follow.objects.filter(
+            user=user2, author=user2).count()
+        self.a_c_author.get(FOLLOW)
+        followers_count = Follow.objects.filter(
+            user=user2, author=user2).count()
+        self.assertEqual(followers_count, 0)
