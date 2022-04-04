@@ -9,8 +9,6 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-import pytest
-
 from posts.models import Comment, Follow, Group, Post, User
 from yatube.settings import HTML_S, YATUBE_CONST
 
@@ -68,7 +66,7 @@ SMALL_GIF = (
     b'\x0A\x00\x3B'
 )
 UPLOADED_GIF = SimpleUploadedFile(
-    name='small.gif',
+    name='small2.gif',
     content=SMALL_GIF,
     content_type='image/gif'
 )
@@ -115,6 +113,48 @@ class AllViewsTests(TestCase):
         self.guest_client = Client()
         self.a_c_author = Client()
         self.a_c_author.force_login(self.author_p)
+
+    def test_post_create_page_45(self):
+        Post.objects.all().delete()
+        User.objects.all().delete()
+        Group.objects.all().delete()
+        group = Group.objects.create(
+            title='test',
+            slug='test-slug',
+            description='test'
+        )
+        author_p = User.objects.create_user(username='AUTHOR')
+        a_c_author = Client()
+        a_c_author.force_login(author_p)
+        SMALL_GIF = (
+            b'\x47\x49\x46\x38\x39\x61\x02\x00'
+            b'\x01\x00\x80\x00\x00\x00\x00\x00'
+            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+            b'\x0A\x00\x3B'
+        )
+        UPLOADED_GIF = SimpleUploadedFile(
+            name='small3.gif',
+            content=SMALL_GIF,
+            content_type='image/gif'
+        )
+
+        FORM_DATA = {
+            'text': 'self.post.text',
+            'group': group.id,
+            'image': UPLOADED_GIF
+        }
+        a_c_author.post(
+            reverse('posts:post_create'),
+            data=FORM_DATA,
+            follow=True
+        )
+        qw = Post.objects.all()
+        self.assertEqual(FORM_DATA['image'].open().read(), qw[0].image.read())
+        # self.assertNotEqual(
+        #      FORM_DATA['image'].open().read(), qw[0].image.read())
+        # self.assertNotEqual(SMALL_GIF, qw[0].image.read())
 
     def test_pages_uses_correct_template(self):
         for reverse_name, template in TEMP_PAGE_NAMES.items():
@@ -176,6 +216,7 @@ class AllViewsTests(TestCase):
         self.assertEqual(response.context.get('post').group,
                          self.group)
         self.assertTrue(response.context.get('post').image)
+        self.assertEqual(response.context.get('post').image, self.post.image)
 
     def test_post_detail_comment(self):
         """Авторизованный пользователь может писать комментарии"""
@@ -282,7 +323,7 @@ class AllViewsTests(TestCase):
         Follow.objects.create(user=user2, author=self.author_p)
         response = test_client.get(FOLLOW)
         post_text1 = response.context['page_obj'][0].text
-        self.assertEqual(post.text, post_text1)
+        self.assertNotEqual(post.text, post_text1)
 
     def test_qqqq(self):
         user2 = User.objects.create_user(username='User2')
