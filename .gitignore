@@ -3,9 +3,9 @@ htmlcov/
 .coverage.*
 coverage.xml
 *.cover 
-static/
+# static/
 media/
-posts/static/
+# posts/static/
 .vscode
 # Byte-compiled / optimized / DLL files
 __pycache__/
